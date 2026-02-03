@@ -1,4 +1,4 @@
-# ex 1: declare a string, and read the 4-th value
+#ex 1: declare a string, and read the 4-th value
 x = "Furina"
 print(x[3])
 
