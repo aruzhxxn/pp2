@@ -45,5 +45,3 @@ def praise_nahida():
     print(x, "is great")
 praise_nahida()
 print(x, "is great")
-
-

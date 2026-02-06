@@ -19,5 +19,3 @@ print(a)
 print("Furina")
 
 print("Furina") # < -- comment can be writed only after the code, otherwise the whole line will be a comment
-
-
