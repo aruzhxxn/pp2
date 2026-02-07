@@ -10,5 +10,5 @@ for archon in archons_list:
 archons_list = ["venti", "zhongli", "raiden", "nahida", "furina", "mavuika", "mualani"]
 for archon in archons_list:
     if archon == "mavuika": # 1 step after
-        break
+        continue
     print(archon)
