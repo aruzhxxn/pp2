@@ -19,7 +19,3 @@ for i in a:
     for j in b:
         print(f"({i, j})")
 
-# ex 5: pass
-archons_list = ["venti", "zhongli", "raiden", "nahida", "furina", "mavuika", "mualani"]
-for archon in archons_list:
-    pass
