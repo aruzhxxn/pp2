@@ -1,0 +1,16 @@
+Moving Ball Game
+
+Description:
+A simple Pygame application where a red ball moves on the screen.
+
+Features:
+- Control with arrow keys
+- Moves by 20 pixels
+- Cannot leave screen boundaries
+
+Controls:
+- Arrow keys — move
+- ESC — exit
+
+Run:
+py -3.13 main.py
