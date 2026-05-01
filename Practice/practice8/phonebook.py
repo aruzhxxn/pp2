@@ -16,31 +16,44 @@ def create_table():
 
 
 def add_contact_from_csv():
-    with open(r"c:\Users\lashy\OneDrive\Рабочий стол\1\pp2\Practice\practice7\contacts.csv", "r", encoding="utf-8") as file:
-        reader = csv.reader(file)
-        for row in reader:
-            if len(row) < 2:
-                continue
-            name = row[0]
-            phone = row[1]
-            cur.execute("CALL insert_or_update_user(%s, %s);", (name, phone))
-    conn.commit()
-    print("Контакты из CSV добавлены")
+    try:
+        with open(r"c:\Users\lashy\OneDrive\Рабочий стол\1\pp2\Practice\practice7\contacts.csv", "r", encoding="utf-8") as file:
+            reader = csv.reader(file)
+            for row in reader:
+                if len(row) < 2:
+                    continue
+
+                name = row[0].strip()
+                phone = row[1].strip()
+
+                cur.execute("CALL insert_or_update_user(%s, %s);", (name, phone))
+
+        conn.commit()
+        print("Контакты из CSV добавлены")
+
+    except FileNotFoundError:
+        print("CSV-файл не найден")
+    except Exception as e:
+        print("Ошибка при загрузке CSV:", e)
 
 
 def add_or_update_user():
-    name = input("Введите имя: ")
-    phone = input("Введите телефон: ")
+    name = input("Введите имя: ").strip()
+    phone = input("Введите телефон: ").strip()
+
     cur.execute("CALL insert_or_update_user(%s, %s);", (name, phone))
     conn.commit()
     print("Пользователь добавлен или обновлен")
 
 
 def search_pattern():
-    value = input("Введите шаблон для поиска: ")
-    cur.execute("SELECT * FROM filtr(%s);", (value,))
+    value = input("Введите шаблон для поиска: ").strip()
+
+    cur.execute("SELECT * FROM search_pattern(%s);", (value,))
     rows = cur.fetchall()
+
     if rows:
+        print("\nРезультаты поиска:")
         for row in rows:
             print(row)
     else:
@@ -48,11 +61,18 @@ def search_pattern():
 
 
 def show_page():
-    limit_value = int(input("Введите LIMIT: "))
-    offset_value = int(input("Введите OFFSET: "))
-    cur.execute("SELECT * FROM get_phonebook_page(%s, %s);", (limit_value, offset_value))
+    try:
+        limit_value = int(input("Введите LIMIT: "))
+        offset_value = int(input("Введите OFFSET: "))
+    except ValueError:
+        print("LIMIT и OFFSET должны быть числами")
+        return
+
+    cur.execute("SELECT * FROM get_contacts_paginated(%s, %s);", (limit_value, offset_value))
     rows = cur.fetchall()
+
     if rows:
+        print("\nКонтакты:")
         for row in rows:
             print(row)
     else:
@@ -60,32 +80,49 @@ def show_page():
 
 
 def add_many_users():
-    n = int(input("Сколько пользователей хотите добавить? "))
+    try:
+        n = int(input("Сколько пользователей хотите добавить? "))
+    except ValueError:
+        print("Нужно ввести число")
+        return
+
     names = []
     phones = []
 
     for i in range(n):
-        name = input(f"Введите имя {i + 1}: ")
-        phone = input(f"Введите телефон {i + 1}: ")
+        name = input(f"Введите имя {i + 1}: ").strip()
+        phone = input(f"Введите телефон {i + 1}: ").strip()
         names.append(name)
         phones.append(phone)
 
-    cur.execute("CALL insert_many_users(%s, %s);", (names, phones))
+    cur.execute("SELECT * FROM insert_many_users(%s, %s);", (names, phones))
+    invalid_rows = cur.fetchall()
     conn.commit()
+
     print("Добавление завершено")
+
+    if invalid_rows:
+        print("Некорректные данные:")
+        for row in invalid_rows:
+            print(f"Имя: {row[0]}, Телефон: {row[1]}")
+    else:
+        print("Все данные корректны")
 
 
 def delete_user():
-    value = input("Введите имя или телефон для удаления: ")
+    value = input("Введите имя или телефон для удаления: ").strip()
+
     cur.execute("CALL delete_by_name_or_phone(%s);", (value,))
     conn.commit()
     print("Удаление выполнено")
 
 
 def show_all_contacts():
-    cur.execute("SELECT * FROM phonebook;")
+    cur.execute("SELECT * FROM phonebook ORDER BY id;")
     rows = cur.fetchall()
+
     if rows:
+        print("\nВсе контакты:")
         for row in rows:
             print(row)
     else:

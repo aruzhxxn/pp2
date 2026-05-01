@@ -1,102 +1,110 @@
-import pygame 
+import pygame
 import datetime
 import os
-from clock import rotate_center #rotation function
+from clock import rotate_center  # функция для поворота изображения вокруг центра
 
-# Window settings: screen width and height in pixels
+# Настройки окна: ширина и высота экрана в пикселях
 WIDTH, HEIGHT = 600, 600
-# Frames per second (refresh rate)
+# Количество кадров в секунду
 FPS = 60
 
-# Initialize all Pygame modules
+# Инициализация всех модулей Pygame
 pygame.init()
-# Create game window with specified dimensions
+# Создание игрового окна с заданными размерами
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-# Set window title
+# Установка названия окна
 pygame.display.set_caption("Mickey's Clock")
-# Create Clock object for FPS control
+# Создание объекта Clock для контроля FPS
 clock = pygame.time.Clock()
 
-# Get absolute path to the directory where the current script is located
+# Получаем абсолютный путь к папке, где находится текущий файл
 BASE_PATH = os.path.dirname(__file__)
-# Build path to the images folder (named "images")
+# Формируем путь к папке с изображениями
 IMG_DIR = os.path.join(BASE_PATH, "images")
 
-# Try-except block to handle image loading errors
+# Блок try-except нужен для обработки ошибок при загрузке картинок
 try:
-    # Load Mickey's body image (clock face) and scale to 600x600
-    # convert_alpha() optimizes the image with transparency for better performance
-    mickey_body = pygame.transform.scale(pygame.image.load(os.path.join(IMG_DIR, "main-clock.png")).convert_alpha(), (600, 600))
-    
-    # Load right hand image (minute hand) and scale to 230x500
-    right_hand = pygame.transform.scale(pygame.image.load(os.path.join(IMG_DIR, "right-hand.png")).convert_alpha(), (230, 500))
-    
-    # Load left hand image (second hand) and scale to 230x500
-    left_hand = pygame.transform.scale(pygame.image.load(os.path.join(IMG_DIR, "left-hand.png")).convert_alpha(), (230, 500))
-    
-# If an error occurs while loading any image
+    # Загружаем изображение тела Микки и масштабируем до 600x600
+    # convert_alpha() сохраняет прозрачность изображения
+    mickey_body = pygame.transform.scale(
+        pygame.image.load(os.path.join(IMG_DIR, "main-clock.png")).convert_alpha(),
+        (600, 600)
+    )
+
+    # Загружаем правую руку (минутная стрелка) и изменяем размер
+    right_hand = pygame.transform.scale(
+        pygame.image.load(os.path.join(IMG_DIR, "right-hand.png")).convert_alpha(),
+        (230, 500)
+    )
+
+    # Загружаем левую руку (секундная стрелка) и изменяем размер
+    left_hand = pygame.transform.scale(
+        pygame.image.load(os.path.join(IMG_DIR, "left-hand.png")).convert_alpha(),
+        (230, 500)
+    )
+
+# Если возникла ошибка при загрузке изображений
 except pygame.error as e:
-    # Print error message
-    print(f"Loading error: {e}")
-    # Close Pygame
+    # Выводим сообщение об ошибке
+    print(f"Ошибка загрузки: {e}")
+    # Корректно завершаем Pygame
     pygame.quit()
-    # Exit the program
+    # Полностью выходим из программы
     exit()
 
-# Calculate the center point of the screen (where hands will rotate around)
-# Use Mickey's body width and height divided by 2
+# Вычисляем центр экрана, вокруг которого будут вращаться стрелки
 CENTER = (mickey_body.get_width() // 2, mickey_body.get_height() // 2)
 
-# Flag to control the main game loop
+# Флаг для управления главным циклом программы
 running = True
 
-# MAIN GAME LOOP (executes while running = True)
+# Главный игровой цикл
 while running:
-    # Process all events in the Pygame event queue
+    # Обрабатываем все события из очереди
     for event in pygame.event.get():
-        # If event is closing the window (clicking the X button)
+        # Если нажали на крестик окна, завершаем программу
         if event.type == pygame.QUIT:
-            # Change flag to False to exit the loop
             running = False
 
-    # GET CURRENT TIME
-    now = datetime.datetime.now()           # Get current date and time
-    seconds = now.second                    # Extract current seconds (0-59)
-    minutes = now.minute                    # Extract current minutes (0-59)
-    micro = now.microsecond / 1_000_000     # Convert microseconds to fraction of a second (0.0-0.999999)
+    # Получаем текущее время
+    now = datetime.datetime.now()
+    # Текущие секунды
+    seconds = now.second
+    # Текущие минуты
+    minutes = now.minute
+    # Доля секунды из микросекунд для плавного движения
+    micro = now.microsecond / 1_000_000
 
-    # CALCULATE ROTATION ANGLES FOR HANDS
-    # For seconds: multiply by 6 (360°/60 sec) + account for microseconds for smooth movement
-    # Negative angle - because Y-axis points down in Pygame (clockwise rotation)
+    # Вычисляем угол поворота секундной стрелки
+    # 360 градусов / 60 секунд = 6 градусов на каждую секунду
+    # Знак минус нужен, потому что в Pygame ось Y направлена вниз
     sec_angle = -((seconds + micro) * 6)
-    
-    # For minutes: multiply by 6 + add fraction from seconds (seconds/60) for smooth movement
+
+    # Вычисляем угол поворота минутной стрелки
+    # Добавляем долю от секунд, чтобы движение было плавным
     min_angle = -((minutes + (seconds / 60)) * 6)
 
-    # FRAME RENDERING
-    # Fill screen with white color (RGB: 255,255,255)
+    # Заливаем экран белым цветом
     screen.fill((255, 255, 255))
 
-    # Draw Mickey's body (clock face) at coordinates (0,0) - top-left corner
+    # Рисуем тело Микки как фон часов
     screen.blit(mickey_body, (0, 0))
 
-    # Rotate right hand (minute hand) by calculated angle around center
-    # rotate_center function returns rotated image and its rectangle
+    # Поворачиваем правую руку (минутную стрелку) вокруг центра
     rot_min, min_rect = rotate_center(right_hand, min_angle, CENTER)
-    # Draw the rotated minute hand
+    # Отрисовываем повернутую минутную стрелку
     screen.blit(rot_min, min_rect)
 
-    # Rotate left hand (second hand) by calculated angle around center
+    # Поворачиваем левую руку (секундную стрелку) вокруг центра
     rot_sec, sec_rect = rotate_center(left_hand, sec_angle, CENTER)
-    # Draw the rotated second hand
+    # Отрисовываем повернутую секундную стрелку
     screen.blit(rot_sec, sec_rect)
 
-    # Update the screen contents (show everything we've drawn)
+    # Обновляем экран, показывая все изменения
     pygame.display.flip()
-    
-    # Limit frame rate to FPS (60 frames per second)
-    # Program will wait here to not exceed the specified frame rate
+
+    # Ограничиваем скорость цикла до 60 кадров в секунду
     clock.tick(FPS)
 
-# Close all Pygame modules and exit the program properly
+# После выхода из цикла корректно завершаем Pygame
 pygame.quit()

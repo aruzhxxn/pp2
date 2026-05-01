@@ -6,8 +6,8 @@ import random
 pygame.init() 
 
 # размеры окна
-height = 600
-width = 400
+height = 800
+width = 600
 
 # создаем окно
 ecran = pygame.display.set_mode((width, height))
@@ -24,7 +24,7 @@ fon = pygame.transform.scale(fon, (width, height))
 player = pygame.image.load("images/Player.png")
 player = pygame.transform.scale(player, (50, 100))
 player_x = 200
-player_y = 480
+player_y = 650
 
 # загружаем машину врага
 enemy = pygame.image.load("images/Enemy.png")
@@ -34,37 +34,34 @@ enemy_y = -100
 enemy_shag = 1
 score = 0
 
-enemy2 = pygame.image.load("images/Enemy.png")
-enemy2 = pygame.transform.scale(enemy2, (50, 100))
-enemy2_x = random.randint(50, width-50)
-enemy2_y = -150
-enemy2_shag = 2
-
 
 # загружаем монету
 coin = pygame.image.load("images/Coin.png")
-coin = pygame.transform.scale(coin, (40, 40))
-coin_x = random.randint(40, width-40)
-coin_y = -40
+coin = pygame.transform.scale(coin, (60, 60))
+coin_x = random.randint(60, width-60)
+coin_y = -60
 coin_shag = 1
 point = 0
 
+point_coin = 15
+move = 1
+
 # создаем шрифты
-font = pygame.font.SysFont("Verdana", 60)
+font = pygame.font.SysFont("Verdana", 80)
 font_small = pygame.font.SysFont("Verdana", 20)
 
 # главный цикл игры
 while a:
     # двигаем врага и монету вниз
-    enemy_y += enemy_shag
+    enemy_y += enemy_shag + move
     coin_y += coin_shag
-    enemy2_y += enemy2_shag
+
 
     # создаем области для проверки столкновений
     player_rect = player.get_rect(topleft=(player_x, player_y))
     enemy_rect = enemy.get_rect(topleft=(enemy_x, enemy_y))
     coin_rect = coin.get_rect(topleft=(coin_x, coin_y))
-    
+   
     # обработка событий
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -78,15 +75,12 @@ while a:
         score += 1
         enemy_y = -100
         enemy_x = random.randint(50, width-50)
-
-    if enemy2_y >height:
-        enemy2_y = -150
-        enemy2_x = random.randint(50, width-50)
+    
 
     # если монета ушла вниз, возвращаем ее наверх
     if coin_y > height:
-        coin_y = -40
-        coin_x = random.randint(40, width-40)
+        coin_y = -60
+        coin_x = random.randint(60, width-60)
 
     # создаем текст очков
     text = font_small.render(f"SCORE: {score}", True, (0, 0, 0))
@@ -95,7 +89,7 @@ while a:
     # движение игрока влево и вправо
     if keys[pygame.K_LEFT] and player_x > 0:
         player_x -= 2
-    if keys[pygame.K_RIGHT] and player_x < width - 50:
+    if keys[pygame.K_RIGHT] and player_x < width - 70:
         player_x += 2
 
     # проверка столкновения с врагом
@@ -107,25 +101,30 @@ while a:
         pygame.display.update()
         pygame.time.delay(2000)
         pygame.quit()
-
+    
     # проверка сбора монеты
     if player_rect.colliderect(coin_rect):
-        point += 1
-        coin_y = -40
-        coin_x = random.randint(40, width-40)
+        point += random.randint(1,6)
+        coin_y = -60
+        coin_x = random.randint(60, width-60)
+
+    
+    if point >= point_coin:
+        move += 1
+        point_coin += 15
 
     # рисуем фон
     ecran.blit(fon, (0, 0))
 
     # рисуем счетчики
-    ecran.blit(text, (5, 5))
-    ecran.blit(text2, (275, 5))
+    ecran.blit(text, (7, 5))
+    ecran.blit(text2, (470, 5))
 
     # рисуем игрока, врага и монету
     ecran.blit(player, (player_x, player_y))
     ecran.blit(enemy, (enemy_x, enemy_y))
     ecran.blit(coin, (coin_x, coin_y))
-    ecran.blit(enemy2, (enemy2_x, enemy2_y))
+    
     
     # обновляем экран
     pygame.display.update()

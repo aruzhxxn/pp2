@@ -2,8 +2,9 @@ import pygame
 
 pygame.init()
 
-w, h = 800, 600
-screen = pygame.display.set_mode((w, h))
+width = 600
+height = 800
+ecran = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Paint")
 
 clock = pygame.time.Clock()
@@ -14,7 +15,7 @@ red = (255, 0, 0)
 green = (0, 180, 0)
 blue = (0, 100, 255)
 
-screen.fill(white)
+ecran.fill(white)
 
 font = pygame.font.SysFont("Arial", 20)
 
@@ -23,12 +24,13 @@ tool = "brush"
 drawing = False
 start_pos = None
 
-run = True
+a = True
 
-while run:
+while a:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            run = False
+            a = False
+            pygame.quit()
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_b:
@@ -48,7 +50,7 @@ while run:
             elif event.key == pygame.K_4:
                 current_color = blue
             elif event.key == pygame.K_SPACE:
-                screen.fill(white)
+                ecran.fill(white)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             drawing = True
@@ -63,33 +65,33 @@ while run:
                 y = min(start_pos[1], end_pos[1])
                 width = abs(start_pos[0] - end_pos[0])
                 height = abs(start_pos[1] - end_pos[1])
-                pygame.draw.rect(screen, current_color, (x, y, width, height), 3)
+                pygame.draw.rect(ecran, current_color, (x, y, width, height), 3)
 
             elif tool == "circle":
                 radius = int(
                     ((end_pos[0] - start_pos[0]) ** 2 +
                      (end_pos[1] - start_pos[1]) ** 2) ** 0.5
                 )
-                pygame.draw.circle(screen, current_color, start_pos, radius, 3)
+                pygame.draw.circle(ecran, current_color, start_pos, radius, 3)
 
     if drawing:
         mouse_pos = pygame.mouse.get_pos()
 
         if tool == "brush":
-            pygame.draw.line(screen, current_color, start_pos, mouse_pos, 5)
+            pygame.draw.line(ecran, current_color, start_pos, mouse_pos, 5)
             start_pos = mouse_pos
 
         elif tool == "eraser":
-            pygame.draw.line(screen, white, start_pos, mouse_pos, 20)
+            pygame.draw.line(ecran, white, start_pos, mouse_pos, 20)
             start_pos = mouse_pos
 
-    pygame.draw.rect(screen, white, (0, 0, w, 50))
+    pygame.draw.rect(ecran, white, (0, 0, width, 50))
     info = font.render(
         "B: Brush | R: Rectangle | C: Circle | E: Eraser | 1: Black 2: Red 3: Green 4: Blue | Space: Clear",
         True,
         black
     )
-    screen.blit(info, (15, 15))
+    ecran.blit(info, (15, 15))
 
     pygame.display.update()
     clock.tick(60)
