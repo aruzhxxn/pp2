@@ -83,8 +83,9 @@ while a:
 
     # добавляем новую голову
     snake.insert(0, new_head)
+    
     time  += 1
-
+    # если не съела еду то появляется новая еда
     if time> limit_time:
         food = (random.randrange(0, width, shag), random.randrange(0, height, shag))
         time = 0 
